@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -30,6 +31,8 @@ public class RobotOpMode extends OpMode {
     public static DcMotorSimple.Direction FRM = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction BRM = DcMotorSimple.Direction.FORWARD;
 
+    public static double speed = 0.5;
+    public static double correction = 1.1;
 
     //Servos
 
@@ -53,9 +56,9 @@ public class RobotOpMode extends OpMode {
     @Override
     public void loop() {
         // Remember, Y stick value is reversed
-        double y = -gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = gamepad1.right_stick_x;
+        double y = (-gamepad1.left_stick_y - gamepad1.right_stick_y)/2;
+        double x = -gamepad1.left_stick_x * correction * speed; // Counteract imperfect strafing
+        double rx = gamepad1.right_stick_x * speed;
 
 
         double balance = 0.00; //C.G corrector
@@ -73,6 +76,24 @@ public class RobotOpMode extends OpMode {
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
 
+        // telemetry data
 
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+        telemetry.addData("speed: ", speed);
+        dashboardTelemetry.addData("speed: ", speed);
+
+        telemetry.addData("left joystick y: ", -gamepad1.left_stick_y);
+        dashboardTelemetry.addData("left joystick y: ", -gamepad1.left_stick_y);
+
+        telemetry.addData("right joystick y: ", -gamepad1.right_stick_y);
+        dashboardTelemetry.addData("right joystick y: ", -gamepad1.right_stick_y);
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("x", 3.7);
+        packet.put("status", "alive");
+        dashboardTelemetry.addData("x", 3.7);
+        dashboardTelemetry.update();
     }
 }
